@@ -5,6 +5,21 @@ package jgl.math;
  */
 public class Vec2 {
 
+    public static final Vec2 ZERO = new Vec2(0, 0);
+    public static final Vec2 AXIS_X = new Vec2(1, 0);
+    public static final Vec2 AXIS_Y = new Vec2(0, 1);
+
+    public static Vec2 sum(Vec2... vecs) {
+        double x = 0;
+        double y = 0;
+        //noinspection ForLoopReplaceableByForEach
+        for (int i = 0; i < vecs.length; i++) {
+            x += vecs[i].x;
+            y += vecs[i].y;
+        }
+        return new Vec2(x, y);
+    }
+
     public final double x, y;
 
     private volatile double length = -1;
@@ -21,20 +36,20 @@ public class Vec2 {
         this(a, a);
     }
 
-    public Vec2 plus(Vec2 that) {
+    public Vec2 add(Vec2 that) {
         return new Vec2(this.x + that.x, this.y + that.y);
     }
 
-    public Vec2 minus(Vec2 that) {
+    public Vec2 sub(Vec2 that) {
         return new Vec2(this.x - that.x, this.y - that.y);
     }
 
-    public Vec2 times(double a) {
+    public Vec2 mul(double a) {
         if (a == 1) return this;
         return new Vec2(this.x * a, this.y * a);
     }
 
-    public Vec2 divide(double a) {
+    public Vec2 div(double a) {
         if (a == 1) return this;
         return new Vec2(this.x / a, this.y / a);
     }
@@ -55,13 +70,13 @@ public class Vec2 {
         if (normalized != null) {
             return normalized;
         }
-        normalized = this.divide(length());
+        normalized = this.div(length());
         return normalized;
     }
 
     public Vec2 projected(Vec2 axis) {
         double l = axis.length();
-        return axis.times(this.dot(axis)).divide(l * l);
+        return axis.mul(this.dot(axis)).div(l * l);
     }
 
     public Vec2 lerp(Vec2 that, double amt) {

@@ -22,7 +22,6 @@ public class MathUtils {
                 return factorialCache.get(n);
             }
 
-
             for (int k = factorialCache.size(); k <= n; k++) {
                 if (k <= 1) {
                     factorialCache.add(1.0);
@@ -37,15 +36,6 @@ public class MathUtils {
 
     public static double combination(int n, int k) {
         return factorial(n) / factorial(k) / factorial(n - k);
-    }
-
-    public static void main(String[] args) {
-
-        for (int i = 0; i < 6; i++) {
-            System.out.println(combination(5, i));
-        }
-
-
     }
 
 }

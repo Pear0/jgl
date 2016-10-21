@@ -8,7 +8,7 @@ import jgl.math.Vec2;
 public class LinearInterpolator extends BezierInterpolator {
 
     public LinearInterpolator(Vec2 start, Vec2 end) {
-        super(new Vec2[] {start, end});
+        super(start, end);
     }
 
 }

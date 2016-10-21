@@ -70,6 +70,10 @@ public class Renderer {
         drawLine(a.x, a.y, b.x, b.y);
     }
 
+    public void drawPoint(Vec2 vec) {
+        drawLine(vec, vec);
+    }
+
     public void setColor(Color color) {
         g.setColor(color);
     }

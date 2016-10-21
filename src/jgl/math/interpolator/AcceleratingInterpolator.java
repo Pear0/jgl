@@ -24,7 +24,8 @@ public class AcceleratingInterpolator implements IInterpolator {
 
     @Override
     public Vec2 interpolate(double fraction) {
-        return interpolator.interpolate(transformFraction(fraction));
+        double range = interpolator.getInterpolatorRange();
+        return interpolator.interpolate(transformFraction(fraction / range) * range);
     }
 
     public double getAcceleration() {

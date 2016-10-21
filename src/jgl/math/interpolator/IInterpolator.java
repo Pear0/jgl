@@ -9,12 +9,16 @@ public interface IInterpolator {
 
     Vec2 interpolate(double fraction);
 
+    default double getInterpolatorRange() {
+        return 1;
+    }
+
     default Vec2 getStart() {
         return interpolate(0);
     }
 
     default Vec2 getEnd() {
-        return interpolate(1);
+        return interpolate(getInterpolatorRange());
     }
 
 }

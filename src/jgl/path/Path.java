@@ -1,12 +1,14 @@
 package jgl.path;
 
+import jgl.IRenderable;
+import jgl.Renderer;
 import jgl.math.Vec2;
 import jgl.math.interpolator.IInterpolator;
 
 /**
  * Created by william on 10/19/16.
  */
-public class Path implements IInterpolator {
+public class Path implements IInterpolator, IRenderable {
 
     private static double calculateInterpolatorLength(IInterpolator interpolator, double step) {
         Vec2 last = interpolator.getStart();
@@ -33,7 +35,7 @@ public class Path implements IInterpolator {
         return from(interpolators, lengths);
     }
 
-    public static Path from(IInterpolator[] interpolators) {
+    public static Path from(IInterpolator... interpolators) {
         return from(interpolators, 0.005);
     }
 
@@ -99,12 +101,29 @@ public class Path implements IInterpolator {
         return interpolators[index].interpolate(myDistance / myLength);
     }
 
+    public void render(Renderer r, double step) {
+        for (double distance = 0; distance < getLength(); distance += step) {
+            Vec2 current = interpolate(isNormalized ? distance / length : distance);
+            r.drawPoint(current);
+        }
+    }
+
+    @Override
+    public void render(Renderer r) {
+        render(r, 0.1);
+    }
+
     public boolean isNormalized() {
         return isNormalized;
     }
 
     public void setNormalized(boolean normalized) {
         isNormalized = normalized;
+    }
+
+    @Override
+    public double getInterpolatorRange() {
+        return isNormalized ? 1 : length;
     }
 
     public double getLength() {

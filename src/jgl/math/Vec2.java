@@ -1,9 +1,15 @@
 package jgl.math;
 
+import java.util.Random;
+
 /**
  * Created by william on 10/17/16.
  */
 public class Vec2 {
+
+    private static class RandomHolder {
+        static Random random = new Random();
+    }
 
     public static final Vec2 ZERO = new Vec2(0, 0);
     public static final Vec2 AXIS_X = new Vec2(1, 0);
@@ -18,6 +24,15 @@ public class Vec2 {
             y += vecs[i].y;
         }
         return new Vec2(x, y);
+    }
+
+    public static Vec2 unitAngle(double radians) {
+        return AXIS_X.rotate(radians);
+    }
+
+    public static Vec2 unitRandom() {
+        double radians = RandomHolder.random.nextDouble() * 2 * Math.PI;
+        return unitAngle(radians);
     }
 
     public final double x, y;
@@ -62,7 +77,7 @@ public class Vec2 {
         if (length >= 0) {
             return length;
         }
-        length = Math.hypot(x, y);
+        length = Math.sqrt(x * x + y * y);
         return length;
     }
 

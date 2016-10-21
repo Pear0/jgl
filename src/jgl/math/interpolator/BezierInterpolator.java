@@ -10,7 +10,7 @@ public class BezierInterpolator implements IInterpolator {
 
     private Vec2[] points;
 
-    public BezierInterpolator(Vec2[] points) {
+    public BezierInterpolator(Vec2... points) {
         if (points.length < 2) {
             throw new IllegalArgumentException("BezierInterpolator requires at least 2 points, " + points.length + " given");
         }

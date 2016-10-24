@@ -4,7 +4,10 @@ import jgl.math.Vec2;
 import jgl.math.interpolator.AcceleratingInterpolator;
 import jgl.math.interpolator.BezierInterpolator;
 import jgl.path.Path;
+import jgl.path.PathUtil;
 import jgl.view.View;
+
+import java.awt.*;
 
 /**
  * Created by william on 10/20/16.
@@ -33,7 +36,12 @@ public class Launch {
                 a2
         );
 
-        new View(path);
+        new View(r -> {
+            r.getGraphics().drawString("Test", 20, 20);
+
+            r.setColor(new Color(0, 0, 0, 1));
+            PathUtil.fill(r.getGraphics(), path, 10);
+        });
 
     }
 

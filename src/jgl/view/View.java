@@ -33,7 +33,6 @@ public class View {
                 long startTime = System.currentTimeMillis();
                 jgl.Renderer r = new Renderer((Graphics2D) g);
                 int s = r.pushMatrix();
-                r.setColor(new Color(0, 0, 0, 10));
                 View.this.renderable.render(r);
                 r.popMatrix(s);
                 int duration = (int) (System.currentTimeMillis() - startTime);

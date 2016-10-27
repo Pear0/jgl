@@ -1,6 +1,7 @@
 package jgl;
 
 import jgl.math.Vec2;
+import jgl.shape.*;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -76,6 +77,32 @@ public class Renderer {
 
     public void setColor(Color color) {
         g.setColor(color);
+    }
+
+    public void translate(double x, double y) {
+        g.translate(x, y);
+    }
+
+    public void translate(Vec2 v) {
+        translate(v.x, v.y);
+    }
+
+    public void rotate(double theta) {
+        g.rotate(theta);
+    }
+
+    public void fillRect(double x, double y, double w, double h) {
+        g.translate(x, y);
+        g.fillRect(0, 0, (int) (w - x), (int) (h - y));
+        g.translate(-x, -y);
+    }
+
+    public void drawPolygon(jgl.shape.Polygon poly) {
+        Vec2[] points = poly.getPoints();
+        for (int i = 0; i < points.length; i++) {
+            int j = (i + 1) % points.length;
+            drawLine(points[i], points[j]);
+        }
     }
 
 }

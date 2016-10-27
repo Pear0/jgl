@@ -109,6 +109,10 @@ public class Vec2 {
         return new Vec2(x, y);
     }
 
+    public Vec2 rotate(Vec2 origin, double radians) {
+        return this.sub(origin).rotate(radians).add(origin);
+    }
+
     public Vec2 orthoganol() {
         //noinspection SuspiciousNameCombination
         return new Vec2(-y, x);

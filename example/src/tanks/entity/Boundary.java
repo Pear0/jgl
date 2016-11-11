@@ -2,7 +2,7 @@ package tanks.entity;
 
 import jgl.Renderer;
 import jgl.math.Vec2;
-import tanks.World;
+import tanks.world.IWorld;
 
 import java.awt.*;
 
@@ -11,11 +11,33 @@ import java.awt.*;
  */
 public class Boundary extends Entity {
 
+    public static class Builder extends Entity.Builder {
+
+        private Vec2 position;
+        private Vec2 size;
+
+        public Builder(Vec2 position, Vec2 size) {
+            this.position = position;
+            this.size = size;
+        }
+
+        public Builder() {
+        }
+
+        @Override
+        public Boundary build() {
+            return new Boundary(position, size);
+        }
+    }
+
     private Vec2 size;
 
     public Boundary(Vec2 position, Vec2 size) {
-        this.position = position;
+        setPosition(position);
         this.size = size;
+    }
+
+    public Boundary() {
     }
 
     @Override
@@ -26,7 +48,7 @@ public class Boundary extends Entity {
     }
 
     @Override
-    public void tick(World world, float d) {
+    public void tick(IWorld world, float d) {
     }
 
     @Override
@@ -36,6 +58,8 @@ public class Boundary extends Entity {
 
     @Override
     public void setRotation(double rotation) {
-        throw new UnsupportedOperationException("Boundaries cannot be rotated");
+        if (rotation != 0) {
+            throw new UnsupportedOperationException("Boundaries cannot be rotated");
+        }
     }
 }

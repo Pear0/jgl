@@ -16,7 +16,7 @@ public class Window {
 
         private Window window;
 
-        public void render(Renderer r) {
+        public void render(Renderer r, int width, int height) {
         }
 
         public void tick(float d) {
@@ -34,17 +34,22 @@ public class Window {
         }
     }
 
+    private String title;
     private WindowImpl windowImpl;
 
     private JFrame frame;
     private Canvas canvas;
     private volatile boolean isClosed;
     private long lastTime = -1;
+    private long lastFpsUpdate;
+    private int frameCount;
+    private boolean shouldRender = true;
 
-    private boolean[] isKeyPressed = new boolean[65536];
-    private boolean[] lastKeyPressed = new boolean[65536];
+    private final boolean[] isKeyPressed = new boolean[65536];
+    private final boolean[] lastKeyPressed = new boolean[65536];
 
     public Window(String title, int width, int height, WindowImpl windowImpl) {
+        this.title = title;
         this.windowImpl = windowImpl;
         this.windowImpl.setWindow(this);
 
@@ -67,12 +72,16 @@ public class Window {
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                isKeyPressed[e.getKeyCode()] = true;
+                synchronized (isKeyPressed) {
+                    isKeyPressed[e.getKeyCode()] = true;
+                }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                isKeyPressed[e.getKeyCode()] = false;
+                synchronized (isKeyPressed) {
+                    isKeyPressed[e.getKeyCode()] = false;
+                }
             }
         });
 
@@ -94,25 +103,40 @@ public class Window {
         float delta = (currentTime - lastTime) / 1000f;
         lastTime = currentTime;
 
-        if (isClosed) return false;
+        if (currentTime - lastFpsUpdate > 500) {
+            float fps = frameCount * 1000f / (float) (currentTime - lastFpsUpdate);
+            frame.setTitle(title + " | " + Math.round(fps) + (shouldRender ? "fps" : " ticks/second"));
+            frameCount = 0;
+            lastFpsUpdate = currentTime;
+        }
 
-        System.arraycopy(isKeyPressed, 0, lastKeyPressed, 0, isKeyPressed.length);
+        if (isClosed) return false;
 
         windowImpl.tick(delta);
 
-        BufferStrategy bs = canvas.getBufferStrategy();
-        if (bs == null) {
-            canvas.createBufferStrategy(2);
-            bs = canvas.getBufferStrategy();
+        synchronized (isKeyPressed) {
+            System.arraycopy(isKeyPressed, 0, lastKeyPressed, 0, isKeyPressed.length);
         }
 
-        Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-        g.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        if (shouldRender) {
+            BufferStrategy bs = canvas.getBufferStrategy();
+            if (bs == null) {
+                canvas.createBufferStrategy(2);
+                bs = canvas.getBufferStrategy();
+            }
 
-        windowImpl.render(new Renderer(g));
+            Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+            g.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        g.dispose();
-        bs.show();
+            windowImpl.render(new Renderer(g), canvas.getWidth(), canvas.getHeight());
+
+            g.dispose();
+            if (isClosed)
+                return false;
+            bs.show();
+        }
+
+        frameCount++;
 
         return !isClosed;
     }
@@ -123,11 +147,22 @@ public class Window {
     }
 
     public boolean isKeyPressed(int keyCode) {
-        return isKeyPressed[keyCode];
+        synchronized (isKeyPressed) {
+            return isKeyPressed[keyCode];
+        }
     }
 
     public boolean keyJustPressed(int keyCode) {
-        return isKeyPressed[keyCode] && !lastKeyPressed[keyCode];
+        synchronized (isKeyPressed) {
+            return isKeyPressed[keyCode] && !lastKeyPressed[keyCode];
+        }
     }
 
+    public boolean shouldRender() {
+        return shouldRender;
+    }
+
+    public void setShouldRender(boolean shouldRender) {
+        this.shouldRender = shouldRender;
+    }
 }

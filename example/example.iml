@@ -8,5 +8,10 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Java 2D Game Library" exported="" />
+    <orderEntry type="library" name="minlog-1.2" level="project" />
+    <orderEntry type="library" name="objenesis-2.4" level="project" />
+    <orderEntry type="library" name="kryo-4.0.0" level="project" />
+    <orderEntry type="library" name="asm-4.0" level="project" />
+    <orderEntry type="library" name="reflectasm-1.09" level="project" />
   </component>
 </module>

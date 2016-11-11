@@ -1,11 +1,14 @@
 package jgl.math;
 
+import jgl.MassLogger;
+
+import java.io.Serializable;
 import java.util.Random;
 
 /**
  * Created by william on 10/17/16.
  */
-public class Vec2 {
+public class Vec2 implements Serializable {
 
     private static class RandomHolder {
         static Random random = new Random();
@@ -14,6 +17,8 @@ public class Vec2 {
     public static final Vec2 ZERO = new Vec2(0, 0);
     public static final Vec2 AXIS_X = new Vec2(1, 0);
     public static final Vec2 AXIS_Y = new Vec2(0, 1);
+
+    public static final double EPSILON = 1e-6;
 
     public static Vec2 sum(Vec2... vecs) {
         double x = 0;
@@ -37,8 +42,8 @@ public class Vec2 {
 
     public final double x, y;
 
-    private volatile double length = -1;
-    private volatile Vec2 normalized;
+    private volatile transient double length = -1;
+    private volatile transient Vec2 normalized;
 
     public Vec2(double x, double y) {
         if (!Double.isFinite(x) || !Double.isFinite(y)) {
@@ -51,16 +56,31 @@ public class Vec2 {
         this(a, a);
     }
 
+    public Vec2() {
+        this.x = 0;
+        this.y = 0;
+    }
+
     public Vec2 add(Vec2 that) {
+        if (this == ZERO) {
+            return that;
+        }
+        if (that == ZERO) {
+            return this;
+        }
         return new Vec2(this.x + that.x, this.y + that.y);
     }
 
     public Vec2 sub(Vec2 that) {
+        if (that == ZERO) {
+            return this;
+        }
         return new Vec2(this.x - that.x, this.y - that.y);
     }
 
     public Vec2 mul(double a) {
         if (a == 1) return this;
+        if (a == 0) return ZERO;
         return new Vec2(this.x * a, this.y * a);
     }
 
@@ -85,22 +105,29 @@ public class Vec2 {
         if (normalized != null) {
             return normalized;
         }
-        normalized = this.div(length());
+        double l = length();
+        normalized = l == 0 ? Vec2.ZERO : this.div(l);
         return normalized;
     }
 
-    public Vec2 projected(Vec2 axis) {
+    public Vec2 projectedOn(Vec2 axis) {
         double l = axis.length();
-        return axis.mul(this.dot(axis)).div(l * l);
+        return axis.mul(this.dot(axis) / (l * l));
     }
 
     public Vec2 lerp(Vec2 that, double amt) {
+        if (amt == 0) return this;
+        if (amt == 1) return that;
         double dX = that.x - this.x;
         double dY = that.y - this.y;
         return new Vec2(this.x + amt * dX, this.y + amt * dY);
     }
 
     public Vec2 rotate(double radians) {
+        if (radians == 0) {
+            return this;
+        }
+
         double sin = Math.sin(radians);
         double cos = Math.cos(radians);
 
@@ -113,9 +140,26 @@ public class Vec2 {
         return this.sub(origin).rotate(radians).add(origin);
     }
 
-    public Vec2 orthoganol() {
+    public double angleBetween(Vec2 other) {
+        return Math.acos(normalized().dot(other.normalized()));
+    }
+
+    public double angle() {
+        return Math.atan2(y, x);
+    }
+
+    public double directedAngleBetween(Vec2 other) {
+        return other.angle() - angle();
+    }
+
+    public Vec2 orthogonal() {
         //noinspection SuspiciousNameCombination
         return new Vec2(-y, x);
+    }
+
+    public Vec2 reflectOver(Vec2 axis) {
+        Vec2 common = this.projectedOn(axis);
+        return new Vec2(this.x - 2 * common.x, this.y - 2 * common.y);
     }
 
     @Override
@@ -129,7 +173,7 @@ public class Vec2 {
         if (o == null || getClass() != o.getClass()) return false;
 
         Vec2 vec2 = (Vec2) o;
-        return vec2.x == x && vec2.y == y;
+        return Math.abs(vec2.x - x) < EPSILON && Math.abs(vec2.y - y) < EPSILON;
     }
 
     @Override

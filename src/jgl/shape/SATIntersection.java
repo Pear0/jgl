@@ -33,19 +33,46 @@ public class SATIntersection {
         out[1] = maxProjection;
     }
 
+    private static Vec2 optimizedSubOrthogonalNormal(Vec2 a, Vec2 b) {
+        // return a.sub(b).orthogonal().normalized();
+        // Allocation optimized version of the above:
+
+        // Subtraction and component inverse reciprocal (orthogonal)
+        double x = -(a.y - b.y);
+        double y = a.x - b.x;
+
+        double l = Math.sqrt(x * x + y * y);
+        return new Vec2(x / l, y / l);
+    }
+
     public static boolean intersects(Polygon a, Polygon b) {
+        // Exit early
+        {
+            Vec2 aCenter = a.getCenter();
+            Vec2 bCenter = b.getCenter();
+            double dX = aCenter.x - bCenter.x;
+            double dY = aCenter.y - bCenter.y;
+            double length = Math.sqrt(dX * dX + dY * dY);
+
+            if (length > a.getContainingRadius() + b.getContainingRadius()) {
+                return false;
+            }
+        }
+
         HashSet<Vec2> normals = new HashSet<>();
         Vec2[] aPoints = a.getPoints();
         Vec2[] bPoints = b.getPoints();
 
         for (int i = 0; i < aPoints.length; i++) {
             int j = (i + 1) % aPoints.length;
-            Vec2 n = aPoints[j].sub(aPoints[i]).orthoganol().normalized();
+            //Vec2 n = aPoints[j].sub(aPoints[i]).orthogonal().normalized();
+            Vec2 n = optimizedSubOrthogonalNormal(aPoints[j], aPoints[i]);
             normals.add(n);
         }
         for (int i = 0; i < bPoints.length; i++) {
             int j = (i + 1) % bPoints.length;
-            Vec2 n = bPoints[j].sub(bPoints[i]).orthoganol().normalized();
+            //Vec2 n = bPoints[j].sub(bPoints[i]).orthogonal().normalized();
+            Vec2 n = optimizedSubOrthogonalNormal(bPoints[j], bPoints[i]);
             normals.add(n);
         }
 
